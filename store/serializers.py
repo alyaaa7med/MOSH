@@ -44,3 +44,9 @@ class ProductSerializer(serializers.ModelSerializer): # extend model serializer 
 
     def calculate_tax (self , prod:Product):
         return prod.price * Decimal(1.2) 
+    
+    # example to override the validate method in the serializer 
+    # def validate(self, data) :
+    #     if data['password'] != data['confirm_password']:
+    #         return serializers.ValidationError('Password does not match ')
+    #     return data 
