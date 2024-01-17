@@ -1,11 +1,15 @@
 from django.shortcuts import render
 from django.http import HttpResponse 
-from rest_framework.response import Response 
-from rest_framework.decorators import api_view
-from .models import Product , Collection
-from .serializers import ProductSerializer
+from django_filters.rest_framework import DjangoFileterBackend 
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.filters import SearchFilter , OrderingFilter
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response 
+from rest_framework.decorators import api_view
+from rest_framework.pagination import PageNumberPagination
+from .models import Product , Collection , Review
+from .serializers import ProductSerializer , ReviewSerializer 
 
 #view function take request and return response 
 @api_view(['GET','POST']) #get need serialization , post need deserialization
@@ -27,8 +31,8 @@ def product_list(request) :
 def product_detail(request,id ) :
     product = get_object_or_404(Product,pk=id)
     if request.method=='GET':
-         serializer = ProductSerializer(product) #convert object to dictionary , here we instantiating the serializer
-         return Response(serializer.data) #get the dictionary to the client 
+        serializer = ProductSerializer(product) #convert object to dictionary , here we instantiating the serializer
+        return Response(serializer.data) #get the dictionary to the client 
     
     elif request.method=='PUT':
         serializer = ProductSerializer(product, data=request.data)
@@ -50,3 +54,31 @@ def collection_detail(request,pk ) : #here it will be pk not id as it is for the
     serializer = ProductSerializer(collection) #convert object to dictionary 
     return Response(serializer.data) #get the dictionary 
 
+#for viewset , filtering , but is not completed vid: 29
+class ProdcutViewSet(ModelViewSet):
+    serializer_class = ProductSerializer
+
+    # i should override this method ,as i will use filter method
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        collection_id = self.request.query_params['collection_id']
+
+        if collection_id is not None :
+            queryset = queryset.filter(collection_id=collection_id)
+        return queryset
+    
+class ProdcutViewSet(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    filter_backends=[DjangoFileterBackend,SearchFilter,OrderingFilter]
+    # filterset_class = ProductFilter # i do not create this file 
+    search_fields= ['title','description']
+    ordering_fields = ['price','last_update']
+    # pagination_class= PageNumberPagination #local pagination
+
+
+
+   
+class ReviewClass(ModelViewSet):
+    queryset = Review
+    serializer_class = ReviewSerializer

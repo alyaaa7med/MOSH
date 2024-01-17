@@ -1,6 +1,6 @@
 from decimal import Decimal 
 from rest_framework import serializers 
-from .models import Product , Collection 
+from .models import Product , Collection , Review 
 
 #external representation for the Product model  ,which may differ from the internal (model )
 
@@ -39,7 +39,7 @@ class ProductSerializer(serializers.ModelSerializer): # extend model serializer 
     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')# define a method here and it will return a value to this field 
     # if you do not write that ,then it will serialize the id of collection
     collection = serializers.HyperlinkedRelatedField(
-        query_set=Collection.objects.all(),
+        queryset=Collection.objects.all(),
         view_name= 'collection-detail')
 
     def calculate_tax (self , prod:Product):
@@ -50,3 +50,9 @@ class ProductSerializer(serializers.ModelSerializer): # extend model serializer 
     #     if data['password'] != data['confirm_password']:
     #         return serializers.ValidationError('Password does not match ')
     #     return data 
+
+
+class ReviewSerializer(serializers.ModelSerializer): 
+        
+    model = Review 
+    fields= ['id','name','description','date','product']
