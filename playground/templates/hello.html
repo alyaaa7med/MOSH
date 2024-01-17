@@ -1,1 +1,8 @@
 <h1>hello {{name}} </h1>
+
+<ul>
+   {% for prod in products %}
+   <li>{{prod.title}} - {{prod.collection.title}} </li>
+   {% endfor %}
+
+</ul>
