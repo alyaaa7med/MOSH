@@ -11,7 +11,10 @@ class Collection(models.Model):
     # circular relationship between 2 modles, to solve it make the class in string quotes,
     # also,django will create a reverse relationship in the Product model : collection= ----  , which will clashe with the collection field in Collection model 
     featured_product= models.ForeignKey('Product', on_delete=models.SET_NULL,null=True,related_name='+')#'+' means tell django do not make the reverse relationship ,other solution:  you can change its name 
-
+    
+    def __str__(self)->str :
+        return self.title 
+    
 class Product(models.Model):
     #sku = models.CharField(max_length=10 , primary_key =True) django will make sku the primary key not use its default which is id 
     title = models.CharField(max_length=255) # note: it will be mapped to  a varchar in database 
@@ -26,6 +29,13 @@ class Product(models.Model):
     # for many -> many : the reverse relationship in Promotion class will be <model_name>_set : Product_set and if you want to change it 
     # use related_name = 'products' , but remeber to have the same name in all classes use it  
     promotions=models.ManyToManyField(Promotion) 
+    
+    def __str__(self)->str :
+        return self.title 
+    
+    class Meta : 
+        ordering = ['title']
+
 
 
         
