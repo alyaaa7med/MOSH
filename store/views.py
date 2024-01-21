@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse 
-from django_filters.rest_framework import DjangoFileterBackend 
+from django_filters.rest_framework import DjangoFilterBackend 
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.filters import SearchFilter , OrderingFilter
@@ -8,8 +8,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response 
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
-from .models import Product , Collection , Review
-from .serializers import ProductSerializer , ReviewSerializer 
+from .models import Product , Collection , Review , CartItem , Cart
+from .serializers import ProductSerializer , ReviewSerializer , CartSerializer , CartItemSerializer
 
 #view function take request and return response 
 @api_view(['GET','POST']) #get need serialization , post need deserialization
@@ -67,18 +67,26 @@ class ProdcutViewSet(ModelViewSet):
             queryset = queryset.filter(collection_id=collection_id)
         return queryset
     
+#ModelViewSet ==> CRUD 
 class ProdcutViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    filter_backends=[DjangoFileterBackend,SearchFilter,OrderingFilter]
+    filter_backends=[DjangoFilterBackend,SearchFilter,OrderingFilter]
     # filterset_class = ProductFilter # i do not create this file 
     search_fields= ['title','description']
     ordering_fields = ['price','last_update']
     # pagination_class= PageNumberPagination #local pagination
 
+class CartViewSet (ModelViewSet): # no need for all the CRUD , u can customize the ModelViewSet 
+    queryset = Cart.objects.all()
+    serializer_class=CartSerializer 
 
-
+class CartItemViewSet(ModelViewSet):
+    serializer_class = CartItemSerializer 
+     
+    def get_queryset(self):
+        return CartItem.objects.filter(cart_id=self.kwargs['cart_pk'])  
    
 class ReviewClass(ModelViewSet):
-    queryset = Review
+    queryset = Review.objects.all()
     serializer_class = ReviewSerializer

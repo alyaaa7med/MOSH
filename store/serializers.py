@@ -1,6 +1,6 @@
 from decimal import Decimal 
 from rest_framework import serializers 
-from .models import Product , Collection , Review 
+from .models import Product , Collection , Review , Cart , CartItem
 
 #external representation for the Product model  ,which may differ from the internal (model )
 
@@ -53,6 +53,24 @@ class ProductSerializer(serializers.ModelSerializer): # extend model serializer 
 
 
 class ReviewSerializer(serializers.ModelSerializer): 
-        
-    model = Review 
-    fields= ['id','name','description','date','product']
+    class Meta :
+        model = Review 
+        fields= ['id','name','description','date','product']
+
+
+class CartItemSerializer (serializers.ModelSerializer):
+    class Meta :
+        model = CartItem 
+        fileds = ['id','product','quantity'] # will return the id of the product , to return the product itself u should redefine the product 
+class CartSerializer (serializers.ModelSerializer):
+
+    class Meta :
+        items = CartItemSerializer(many = True )
+        total_price = serializers.SerializerMethodField()
+
+    def get_total_price(self,cart):
+        return sum ([item.quantity * item.quantity.unit_price for item in cart.items.all() ]) 
+    class Meta : 
+        model = Cart
+        # fields = ['id','items']  # no need to return the created_at # items : will return the id of items 
+        fields = ['id','items','total_price']
